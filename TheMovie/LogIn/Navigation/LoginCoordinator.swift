@@ -34,7 +34,7 @@ class LoginCordinator: Coordinator {
     
     func coordinateToHome() {
     
-        let cor = MoviesCordinator(navigationController: navigationController)
+        let cor = MoviesCordinator(presenter: navigationController)
         coordinate(to: cor)
     }
 }

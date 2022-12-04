@@ -26,6 +26,23 @@ class MovieDetailViewController: UIViewController {
         }
     }
     
+    private lazy var titleLabel: UILabel = {
+        let view = UILabel().forAutoLayout()
+        view.textColor = UIColor(rgb: 0x62CD71)
+        view.numberOfLines = 0
+        view.textAlignment = .center
+        view.font = UIFont.systemFont(ofSize: 20)
+        return view
+    }()
+    
+    private lazy var closeButton: UIButton = {
+        let view = UIButton().forAutoLayout()
+        view.setTitle("X", for: .normal)
+        view.tintColor = .white
+        view.addTarget(self, action: #selector(close), for: .touchUpInside)
+        return view
+     }()
+    
     private lazy var favoriteButton: UIButton = {
         let view = UIButton().forAutoLayout()
         view.addTarget(self, action: #selector(tapFavorites), for: .touchUpInside)
@@ -202,7 +219,7 @@ class MovieDetailViewController: UIViewController {
             return
         }
 
-        title = model.title
+        titleLabel.text = model.title
         ratingLabel.text = model.rating
         descriptionLabel.text = model.description
         dateLabel.text = model.date
@@ -220,6 +237,10 @@ class MovieDetailViewController: UIViewController {
     
     @objc func tapFavorites() {
         viewModelInput.changeIsFavoritePublisher.send(!isFavorite)
+    }
+    
+    @objc func close() {
+        viewModel.output.closePublisher.send()
     }
 }
 
@@ -272,13 +293,18 @@ extension MovieDetailViewController {
     private func setupView() {
         view.backgroundColor = UIColor(rgb: 0x0C151A)
         stackView.addArrangedSubviews(homePageLabel, lenguageLabel, dateLabel, statusLabel, ratingLabel)
-        contentView.addSubviews(loadingView, imageView, favoriteButton, stackView, collectionView, descriptionLabel, videosLabel, videosCollectionView)
+        contentView.addSubviews(titleLabel, loadingView, imageView, favoriteButton, stackView, collectionView, descriptionLabel, videosLabel, videosCollectionView)
         scrollView.addSubview(contentView)
-        view.addSubview(scrollView)
+        view.addSubviews(scrollView, closeButton)
         setupConstraints()
     }
 
     private func setupConstraints() {
+        
+        NSLayoutConstraint.activate([
+            closeButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 5),
+            closeButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 10)
+        ])
         
         
         NSLayoutConstraint.activate([
@@ -301,16 +327,23 @@ extension MovieDetailViewController {
             loadingView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
         
+       
+        NSLayoutConstraint.activate([
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 15)
+        ])
+        
         NSLayoutConstraint.activate([
             imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            imageView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            imageView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 15),
             imageView.heightAnchor.constraint(equalToConstant: 200)
         ])
         
         NSLayoutConstraint.activate([
             favoriteButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            favoriteButton.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+            favoriteButton.topAnchor.constraint(equalTo: imageView.topAnchor, constant: 20),
             favoriteButton.heightAnchor.constraint(equalToConstant: 25),
             favoriteButton.widthAnchor.constraint(equalToConstant: 25)
         ])

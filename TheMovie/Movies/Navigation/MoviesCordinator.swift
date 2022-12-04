@@ -12,13 +12,13 @@ import UIKit
 class MoviesCordinator: Coordinator {
     var children: [Coordinator] = []
     
-    private let navigationController: UINavigationController
-    private var currentNavigationController: UINavigationController!
+    private let presenter: UIViewController
+    private var navigationController: UINavigationController!
 
     private var subscriptions = Set<AnyCancellable>()
 
-    init(navigationController: UINavigationController) {
-        self.navigationController = navigationController
+    init(presenter: UIViewController) {
+        self.presenter = presenter
     }
 
     func start() {
@@ -35,11 +35,11 @@ class MoviesCordinator: Coordinator {
                 self?.cordinateToMovieDetails(movieId: id)
             }.store(in: &subscriptions)
         
-        currentNavigationController = UINavigationController(rootViewController: viewController)
-        currentNavigationController.modalPresentationStyle = .fullScreen
-        currentNavigationController.modalTransitionStyle = .crossDissolve
-        currentNavigationController.isNavigationBarHidden = false
-        navigationController.present(currentNavigationController, animated: true)
+        navigationController = UINavigationController(rootViewController: viewController)
+        navigationController.modalPresentationStyle = .fullScreen
+        navigationController.modalTransitionStyle = .crossDissolve
+        navigationController.isNavigationBarHidden = false
+        presenter.present(navigationController, animated: true)
     }
 
     // MARK: - Flow Methods
@@ -56,21 +56,21 @@ class MoviesCordinator: Coordinator {
         
         alert.addAction(.init(title: "Cancel", style: .cancel, handler: nil))
         
-        currentNavigationController.present(alert, animated: true)
+        navigationController.present(alert, animated: true)
     }
     
     func cordinateToProfile() {
-        let cor = ProfileCordinator(navigationController: currentNavigationController)
+        let cor = ProfileCordinator(presenter: navigationController)
         coordinate(to: cor)
     }
     
     func cordinateToMovieDetails(movieId: Int) {
-        let cor = MovieDetailCordinator(navigationController: currentNavigationController, movieId: movieId)
+        let cor = MovieDetailCordinator(presenter: navigationController, movieId: movieId)
         coordinate(to: cor)
     }
     
     func cordinateToParent() {
-        currentNavigationController.dismiss(animated: true)
+        presenter.dismiss(animated: true)
     }
  
 }

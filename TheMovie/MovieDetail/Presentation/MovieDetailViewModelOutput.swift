@@ -14,5 +14,5 @@ struct MovieDetailViewModelOutput {
     let isFavoritePublisher = PassthroughSubject<Bool, Never>()
     let videosLoadedPublisher = PassthroughSubject<[VideoModelView], Never>()
     let videoSelectedPublisher = PassthroughSubject<VideoResponse, Never>()
-
+    let closePublisher = PassthroughSubject<Void, Never>()
 }

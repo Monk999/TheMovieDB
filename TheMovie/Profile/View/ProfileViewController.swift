@@ -17,6 +17,37 @@ class ProfileViewController: UIViewController {
     
     var movies: [MovieModelView] = []
     
+    private lazy var scrollView: UIScrollView = {
+        let view = UIScrollView().forAutoLayout()
+        view.backgroundColor = .clear
+        return view
+     }()
+    
+    private lazy var contentView: UIView = {
+        let view = UIView().forAutoLayout()
+        view.backgroundColor = .clear
+        return view
+     }()
+    
+    
+    private lazy var titleLabel: UILabel = {
+        let view = UILabel().forAutoLayout()
+        view.textColor = UIColor(rgb: 0x62CD71)
+        view.numberOfLines = 0
+        view.text = "Profile"
+        view.font = UIFont.systemFont(ofSize: 20, weight: .bold)
+        return view
+    }()
+    
+    private lazy var closeButton: UIButton = {
+        let view = UIButton().forAutoLayout()
+        view.setTitle("X", for: .normal)
+        view.tintColor = .white
+        view.addTarget(self, action: #selector(close), for: .touchUpInside)
+        return view
+     }()
+    
+    
     private lazy var profileImage: UIImageView = {
         let view = UIImageView().forAutoLayout()
         view.image = UIImage(named: "profile")
@@ -85,7 +116,12 @@ class ProfileViewController: UIViewController {
         
         output.nameLoadedPublisher.sink { [weak self] name in
             self?.nameLabel.text = name
-        }.store(in: &subscriptions)    }
+        }.store(in: &subscriptions)
+    }
+    
+    @objc func close() {
+        viewModel.output.closePublisher.send()
+    }
 }
 
 extension ProfileViewController: MovieCellDelegate {
@@ -130,15 +166,44 @@ extension ProfileViewController {
     private func setupView() {
         view.backgroundColor = UIColor(rgb: 0x0C151A)
         self.title = "Profile"
-        view.addSubviews(collectionView, profileImage, nameLabel, favoritesLabel)
+        contentView.addSubviews(titleLabel, collectionView, profileImage, nameLabel, favoritesLabel)
+        scrollView.addSubview(contentView)
+        view.addSubviews(scrollView, closeButton)
         setupConstraints()
     }
 
     private func setupConstraints() {
         
         NSLayoutConstraint.activate([
-            profileImage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
-            profileImage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+            closeButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 5),
+            closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10)
+        ])
+        
+        NSLayoutConstraint.activate([
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.topAnchor.constraint(equalTo: closeButton.bottomAnchor, constant: 5),
+            scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
+        
+        NSLayoutConstraint.activate([
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            contentView.bottomAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 15)
+        ])
+        
+        NSLayoutConstraint.activate([
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5)
+        ])
+        
+        NSLayoutConstraint.activate([
+            profileImage.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
+            profileImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30),
             profileImage.widthAnchor.constraint(equalToConstant: 100),
             profileImage.heightAnchor.constraint(equalToConstant: 100)
         ])
@@ -146,19 +211,19 @@ extension ProfileViewController {
         NSLayoutConstraint.activate([
             nameLabel.topAnchor.constraint(equalTo: profileImage.topAnchor),
             nameLabel.bottomAnchor.constraint(equalTo: profileImage.bottomAnchor),
-            nameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
             nameLabel.leadingAnchor.constraint(equalTo: profileImage.trailingAnchor, constant: 30)
         ])
         
         NSLayoutConstraint.activate([
             favoritesLabel.topAnchor.constraint(equalTo: profileImage.bottomAnchor, constant: 50),
-            favoritesLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            favoritesLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10)
+            favoritesLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            favoritesLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10)
         ])
         
         NSLayoutConstraint.activate([
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
+            collectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            collectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
             collectionView.topAnchor.constraint(equalTo: favoritesLabel.bottomAnchor, constant: 10),
             collectionView.heightAnchor.constraint(equalToConstant: 300)
         ])

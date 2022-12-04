@@ -11,4 +11,5 @@ struct ProfileViewModelOutput {
     let moviesLoadedPublisher = PassthroughSubject<[MovieModelView], Never>()
     let nameLoadedPublisher = PassthroughSubject<String, Never>()
     let movieSelectedPublisher = PassthroughSubject<MovieResponse, Never>()
+    let closePublisher = PassthroughSubject<Void, Never>()
 }

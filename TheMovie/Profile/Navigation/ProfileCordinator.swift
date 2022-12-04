@@ -12,12 +12,13 @@ import UIKit
 class ProfileCordinator: Coordinator {
     var children: [Coordinator] = []
     
-    private let navigationController: UINavigationController
+    private let presenter: UIViewController
+    private var presented: UIViewController?
 
     private var subscriptions = Set<AnyCancellable>()
 
-    init(navigationController: UINavigationController) {
-        self.navigationController = navigationController
+    init(presenter: UIViewController) {
+        self.presenter = presenter
     }
 
     func start() {
@@ -30,13 +31,22 @@ class ProfileCordinator: Coordinator {
                 self?.cordinateToMovieDetails(movieId: id)
             }.store(in: &subscriptions)
         
-    
-        navigationController.pushViewController(viewController, animated: true)
+        viewController.viewModel.output.closePublisher
+            .sink {  [weak self]  in
+                self?.cordinateToParent()
+            }.store(in: &subscriptions)
+        
+        presented = viewController
+        presenter.present(viewController, animated: true)
     }
 
     func cordinateToMovieDetails(movieId: Int) {
-        let cor = MovieDetailCordinator(navigationController: navigationController, movieId: movieId)
+        let cor = MovieDetailCordinator(presenter: presented!, movieId: movieId)
         coordinate(to: cor)
+    }
+    
+    func cordinateToParent() {
+        presenter.dismiss(animated: true)
     }
  
 }

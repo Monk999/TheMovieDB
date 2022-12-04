@@ -12,13 +12,13 @@ import UIKit
 class MovieDetailCordinator: Coordinator {
     var children: [Coordinator] = []
     
-    private let navigationController: UINavigationController
+    private let presenter: UIViewController
     private var subscriptions = Set<AnyCancellable>()
     private let movieID: Int
     
-    init(navigationController: UINavigationController, movieId: Int) {
+    init(presenter: UIViewController, movieId: Int) {
         self.movieID = movieId
-        self.navigationController = navigationController
+        self.presenter = presenter
     }
 
     func start() {
@@ -30,7 +30,13 @@ class MovieDetailCordinator: Coordinator {
                 self?.cordinateToVideo(video: video)
             }.store(in: &subscriptions)
         
-        navigationController.pushViewController(viewController, animated: true)
+        viewController.viewModel.output.closePublisher
+            .sink {  [weak self]  in
+                self?.cordinateToParent()
+            }.store(in: &subscriptions)
+        
+        
+        presenter.present(viewController, animated: true)
     }
 
     // MARK: - Flow Methods
@@ -48,7 +54,7 @@ class MovieDetailCordinator: Coordinator {
     }
     
     func cordinateToParent() {
-        navigationController.popViewController(animated: true)
+        presenter.dismiss(animated: true)
     }
  
 }
