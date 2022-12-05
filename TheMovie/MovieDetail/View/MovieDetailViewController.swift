@@ -183,6 +183,20 @@ class MovieDetailViewController: UIViewController {
         viewModelInput.viewDidLoadPublisher.send()
     }
     
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        //Called by sheet present
+        if modalPresentationStyle == .pageSheet {
+            if let nv = presentingViewController as? UINavigationController {
+                nv.topViewController?.viewWillAppear(true)
+            } else {
+                presentingViewController?.viewWillAppear(true)
+            }
+        }
+    }
+    
     private func bind() {
         let output = viewModel.bind(input: viewModelInput)
         

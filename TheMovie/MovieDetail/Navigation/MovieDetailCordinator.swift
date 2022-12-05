@@ -56,5 +56,4 @@ class MovieDetailCordinator: Coordinator {
     func cordinateToParent() {
         presenter.dismiss(animated: true)
     }
- 
 }
